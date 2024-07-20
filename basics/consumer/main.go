@@ -17,11 +17,11 @@ type Order struct{
 }
 
 
-
-func Consume(ch *amqp.Channel, q amqp.Queue)(){
+// key is the name of the queue
+func Consume(ch *amqp.Channel, key string)(){
     defer ch.Close()
     msgs, _ := ch.Consume(
-        q.Name,
+        key,
         "",
         false,
         false,
@@ -69,17 +69,7 @@ func main()  {
     FailOnErr(err,  "Connection error")
     ch, err := conn.Channel()
     FailOnErr(err, "Channel creation error")
-    q, err := ch.QueueDeclare(
-        "orders",
-        false,
-        false,
-        false,
-        false,
-        nil,
-
-        )
-    FailOnErr(err, "Queue declaration error")
-    Consume(ch, q)
+    Consume(ch, "orders")
     forever := make(chan bool)
     
     <-forever

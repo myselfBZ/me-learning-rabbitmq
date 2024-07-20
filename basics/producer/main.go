@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"me_learning_rabbiqmq/errs"
+	"time"
 
 	"github.com/streadway/amqp"
 )
@@ -55,8 +56,9 @@ func main()  {
         if err != nil {
             log.Fatal("Error publishing to the queue")
         }
-        log.Print("Success!")
 
+        log.Print("Success!")
+        time.Sleep(time.Second * 12)
         
     }
 
