@@ -80,7 +80,7 @@ func main()  {
 
         )
     FailOnErr(err, "Channel creation error")
-    Consume(ch, "orders", q)
+    Consume(ch, q)
     forever := make(chan bool)
     
     <-forever
