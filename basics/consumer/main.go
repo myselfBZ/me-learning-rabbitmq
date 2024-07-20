@@ -67,10 +67,8 @@ func main()  {
     conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
     defer conn.Close()
     FailOnErr(err,  "Connection error")
-    log.Print("Connected")
     ch, err := conn.Channel()
     FailOnErr(err, "Channel creation error")
-    log.Print("We have a channel")
     q, err := ch.QueueDeclare(
         "orders",
         false,
