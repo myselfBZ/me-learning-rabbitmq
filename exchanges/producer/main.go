@@ -7,7 +7,16 @@ import (
 	"github.com/streadway/amqp"
 )
 
+const (
+    routing_key = "chillin'"
+    exchange = "orders_exchange"
+
+)
+
+
+
 func main(){
+    queues := []string{"queue1", "queue2", "queue3"}
     conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
     FailOnErr(err, errs.ConnErr)
     ch, err := conn.Channel()
@@ -23,26 +32,14 @@ func main(){
         nil,               // arguments
         )
     FailOnErr(err, "exchange err")
-    q, err := ch.QueueDeclare(
-        "orders", // name
-        false,     // durable
-        false,    // delete when unused
-        false,    // exclusive
-        false,    // no-wait
-        nil,      // arguments
-        )
-    FailOnErr(err, errs.QueueErr)
+    
     order := []byte("order created")
-    err = ch.QueueBind(
-        q.Name,
-        "order.create",
-        "orders_exchange",
-        false,
-        nil,
-        )
+    DeclareManyQueues(ch, queues)
+    BindManyQueues(queues, ch, exchange, routing_key)
+
     err = ch.Publish(
-        "orders_exchange",
-        "order.create",
+        exchange,
+        routing_key,
         false, 
         false, 
         amqp.Publishing{
@@ -54,6 +51,40 @@ func main(){
     log.Println("Success")
 
 }
+
+func DeclareManyQueues(ch *amqp.Channel, names []string)  {
+    for _, n := range names{
+        _, err := ch.QueueDeclare(
+            n,
+            false,      
+            false,    
+            false,     
+            false,     
+            nil, 
+            )
+        if err != nil {
+            log.Print(err)
+        }
+    }
+}
+
+
+func BindManyQueues(queues []string, ch *amqp.Channel, exchange string, key string){
+    for _, q := range queues{
+        err := ch.QueueBind(
+            q, 
+            key,
+            exchange,
+            false,
+            nil,
+            )
+        if err != nil{
+            log.Print(err)
+        }
+    }
+
+}
+
 
 func FailOnErr(err error, msg string)  {
     if err != nil{
